@@ -1,0 +1,41 @@
+# ports:
+# - HOST:CONTAINER
+
+version: '3'
+services:
+ wod-ui:
+  build: ./wod-ui
+  depends_on:
+   - wod-proxy
+  links:
+   - wod-service
+  restart: always
+ wod-service:
+  build: ./wod-service/WordOfTheDayService
+  links:
+   - wod-db
+  depends_on:
+   - wod-proxy
+  restart: always
+ wod-db:
+  build: ./wod-db
+  ports:
+   - 1521:1521
+   - 8800:8800
+  volumes:
+   - oracle-data:/u01/app/oracle
+   - /wod-db/scripts:/docker-entrypoint-initdb.d
+ wod-proxy:
+  build: ./wod-proxy
+  ports:
+   - 80:80
+  restart: always 
+ wod-jenkins:
+  image: jenkins:latest
+  ports:
+   - 5000:5000
+  volumes:
+   - jenkins-data:/var/jenkins_home
+volumes:
+  oracle-data:
+  jenkins-data:
